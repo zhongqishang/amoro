@@ -62,7 +62,7 @@ public class FlinkConsumer extends RichParallelSourceFunction<TaskWrapper> {
         if (!running) {
           break;
         }
-        LOG.error("failed to poll task", e);
+        LOG.warn("failed to poll task", e);
         Thread.sleep(POLL_INTERVAL);
       }
     }

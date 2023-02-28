@@ -163,8 +163,9 @@ public class IcebergOptimizeCommit extends BasicOptimizeCommit {
       minorTransaction.commitTransaction();
 
       LOG.info("{} iceberg minor optimize committed, delete {} data files and {} delete files, " +
-          "add {} new data files and {} new delete files",
-          arcticTable.id(), deleteDataFiles.size(), deletedDeleteFiles, addDataFiles.size(), addDeleteFiles);
+              "add {} new data files and {} new delete files",
+          arcticTable.id(), deleteDataFiles.size(), deletedDeleteFiles.size(), addDataFiles.size(),
+          addDeleteFiles.size());
     } else {
       LOG.info("{} skip iceberg minor optimize commit", arcticTable.id());
     }
