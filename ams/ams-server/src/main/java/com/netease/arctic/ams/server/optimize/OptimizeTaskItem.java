@@ -347,6 +347,7 @@ public class OptimizeTaskItem extends IJDBCService {
     tableTaskHistory.setTaskPlanGroup(optimizeTask.getTaskPlanGroup());
     tableTaskHistory.setTaskTraceId(optimizeTask.getTaskId().getTraceId());
     tableTaskHistory.setRetry(optimizeRuntime.getRetry());
+    tableTaskHistory.setSubtaskId(optimizeRuntime.getSubtaskId());
     tableTaskHistory.setStartTime(currentTime);
     tableTaskHistory.setQueueId(optimizeTask.getQueueId());
 
@@ -360,8 +361,6 @@ public class OptimizeTaskItem extends IJDBCService {
     tableTaskHistory.setTaskTraceId(optimizeTask.getTaskId().getTraceId());
     tableTaskHistory.setRetry(optimizeRuntime.getRetry());
     tableTaskHistory.setQueueId(optimizeTask.getQueueId());
-
-    tableTaskHistory.setStartTime(optimizeRuntime.getExecuteTime());
     tableTaskHistory.setEndTime(optimizeRuntime.getReportTime());
     tableTaskHistory.setCostTime(optimizeRuntime.getCostTime());
 
