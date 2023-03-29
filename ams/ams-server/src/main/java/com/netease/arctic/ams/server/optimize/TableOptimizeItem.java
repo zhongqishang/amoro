@@ -994,7 +994,8 @@ public class TableOptimizeItem extends IJDBCService {
       // if table has failed task after max retry, clear all tasks
       if (failedTask.isPresent()) {
         LOG.warn("{} has execute task failed over {} times, the reason is {}",
-            tableIdentifier, maxRetry, failedTask.get().getOptimizeRuntime().getFailReason());
+            tableIdentifier, failedTask.get().getOptimizeRuntime().getRetry(),
+            failedTask.get().getOptimizeRuntime().getFailReason());
         optimizeTasksClear(false);
       }
     } finally {
