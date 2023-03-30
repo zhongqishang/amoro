@@ -23,6 +23,7 @@ import com.netease.arctic.optimizer.OptimizerConfig;
 import com.netease.arctic.optimizer.operator.BaseTaskReporter;
 import com.netease.arctic.optimizer.operator.BaseToucher;
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
+import org.apache.flink.streaming.api.operators.ChainingStrategy;
 import org.apache.flink.streaming.api.operators.OneInputStreamOperator;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
@@ -57,6 +58,7 @@ public class FlinkReporter extends AbstractStreamOperator<Void>
     this.toucher = new BaseToucher(config);
     this.heartBeatInterval = config.getHeartBeat();
     this.createTime = System.currentTimeMillis();
+    setChainingStrategy(ChainingStrategy.ALWAYS);
   }
 
   @Override

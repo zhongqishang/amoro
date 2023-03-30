@@ -252,7 +252,7 @@ public class FlinkOptimizer implements StatefulOptimizer {
         .setParallelism(optimizerConfig.getExecutorParallel())
         .name(FlinkExecuteFunction.class.getName())
         .transform(FlinkReporter.class.getName(), Types.VOID, new FlinkReporter(optimizerConfig))
-        .setParallelism(1)
+        .setParallelism(optimizerConfig.getExecutorParallel())
         .addSink(new DiscardingSink<>())
         .name("Optimizer sink")
         .setParallelism(1);
