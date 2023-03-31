@@ -62,7 +62,7 @@ public class OrphanFilesCleanService implements IOrphanFilesCleanService {
   public static final String METADATA_FOLDER_NAME = "metadata";
   public static final String DATA_FOLDER_NAME = "data";
 
-  private static final long CHECK_INTERVAL = 7 * 24 * 60 * 60 * 1000;  // 7 days
+  private static final long CHECK_INTERVAL = 24 * 60 * 60 * 1000;  // 1 days
 
   private ScheduledTasks<TableIdentifier, TableOrphanFileClean> cleanTasks;
 
