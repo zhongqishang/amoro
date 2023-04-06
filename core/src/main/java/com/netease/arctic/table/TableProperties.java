@@ -84,7 +84,7 @@ public class TableProperties {
   public static final long SELF_OPTIMIZING_EXECUTE_TIMEOUT_DEFAULT = 1800000; // 30 min
 
   public static final String SELF_OPTIMIZING_TARGET_SIZE = "self-optimizing.target-size";
-  public static final long SELF_OPTIMIZING_TARGET_SIZE_DEFAULT = 134217728; // 128 MB
+  public static final long SELF_OPTIMIZING_TARGET_SIZE_DEFAULT = 268435456; // 256 MB
 
   public static final String SELF_OPTIMIZING_MAX_FILE_CNT = "self-optimizing.max-file-count";
   public static final int SELF_OPTIMIZING_MAX_FILE_CNT_DEFAULT = 10000;
