@@ -70,3 +70,10 @@ optimize_group:
 #      spillable.map.enabled: false
 #      spillable.memory.limit: 512      #max delete map size in memory for optimizer, default is 512M
 #      spillable.map.dir:      #spill map base dir, default is System.System.getProperty("java.io.tmpdir")
+
+#alert:
+#  type: dingtalk
+#  url: https://oapi.dingtalk.com/robot/send
+#  access_token: x
+#  secret.enable: true
+#  secret.token: x

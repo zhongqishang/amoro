@@ -975,6 +975,17 @@ public class TableOptimizeItem extends IJDBCService {
     tasksLock.lock();
     try {
       int maxRetry = optimizeMaxRetry();
+
+      // if table has failed task after max retry and reason is execute expired, alert
+      Optional<OptimizeTaskItem> expiredTask =
+          optimizeTasks.values().stream().filter(task -> task.getOptimizeRuntime().getRetry() > maxRetry)
+              .filter(task -> "execute expired".equals(task.getOptimizeRuntime().getFailReason()))
+              .findFirst();
+      if (expiredTask.isPresent()) {
+        ServiceContainer.getAlertService().alert(String.format("%s is execute expired.", tableIdentifier));
+        // TODO disabledOptimizeTable();
+      }
+
       Optional<OptimizeTaskItem> failedTask =
           optimizeTasks.values().stream().filter(task ->
                   task.getOptimizeRuntime().getRetry() > maxRetry && OptimizeStatus.Failed == task.getOptimizeStatus())
@@ -1392,6 +1403,10 @@ public class TableOptimizeItem extends IJDBCService {
     }
     OptimizeTaskItem optimizeTaskItem = new ArrayList<>(optimizeTasks.values()).get(0);
     return optimizeTaskItem.getTaskId().getType() == OptimizeType.Minor;
+  }
+
+  boolean isPending() {
+    return TableOptimizeRuntime.OptimizeStatus.Pending == tableOptimizeRuntime.getOptimizeStatus();
   }
 
   /**

@@ -39,6 +39,7 @@ import com.netease.arctic.ams.server.handler.impl.OptimizeManagerHandler;
 import com.netease.arctic.ams.server.model.Container;
 import com.netease.arctic.ams.server.model.OptimizeQueueMeta;
 import com.netease.arctic.ams.server.optimize.OptimizeCommitWorker;
+import com.netease.arctic.ams.server.service.AlertService;
 import com.netease.arctic.ams.server.service.ServiceContainer;
 import com.netease.arctic.ams.server.service.impl.DDLTracerService;
 import com.netease.arctic.ams.server.service.impl.DerbyService;
@@ -300,6 +301,7 @@ public class ArcticMetaStore {
         startTrashClean();
         startSupportHiveSync();
         monitorOptimizerStatus();
+        monitorPendingTables();
         tableRuntimeDataExpire();
         AmsRestServer.startRestServer(httpPort);
         startSyncDDl();
@@ -401,6 +403,14 @@ public class ArcticMetaStore {
         monitor::monitorStatus,
         3 * 1000L,
         60 * 1000L,
+        TimeUnit.MILLISECONDS);
+  }
+
+  private static void monitorPendingTables() {
+    ThreadPool.getPool(ThreadPool.Type.PENDING_TABLES_MONITOR).scheduleWithFixedDelay(
+        ServiceContainer.getOptimizeService()::checkPendingTables,
+        60 * 1000L,
+        30 * 60 * 1000L,
         TimeUnit.MILLISECONDS);
   }
 
@@ -584,6 +594,7 @@ public class ArcticMetaStore {
     try {
       initContainerConfig();
       initOptimizeGroupConfig();
+      initAlertConfig();
     } catch (Exception e) {
       LOG.error("init ams config error", e);
       System.exit(1);
@@ -659,6 +670,14 @@ public class ArcticMetaStore {
         }
         ServiceContainer.getOptimizeQueueService().createQueue(optimizeQueueMeta);
       }
+    }
+  }
+
+  private static void initAlertConfig() throws Exception {
+    JSONObject alertConfig = yamlConfig.getJSONObject(ConfigFileProperties.ALERT_CONFIG);
+    if (alertConfig != null) {
+      AlertService alertService = ServiceContainer.getAlertService();
+      alertService.init(alertConfig);
     }
   }
 

@@ -45,6 +45,7 @@ public class ThreadPool {
   private static ScheduledExecutorService trashCleanPool;
   private static ScheduledExecutorService supportHiveSyncPool;
   private static ScheduledExecutorService optimizerMonitorPool;
+  private static ScheduledExecutorService pendingTableMonitorPool;
   private static ThreadPoolExecutor syncFileInfoCachePool;
   private static ScheduledExecutorService tableRuntimeDataExpirePool;
 
@@ -56,6 +57,7 @@ public class ThreadPool {
     TRASH_CLEAN,
     SYNC_FILE_INFO_CACHE,
     OPTIMIZER_MONITOR,
+    PENDING_TABLES_MONITOR,
     TABLE_RUNTIME_DATA_EXPIRE,
     HIVE_SYNC
   }
@@ -112,6 +114,12 @@ public class ThreadPool {
         1,
         optimizerMonitorThreadFactory);
 
+    ThreadFactory pendingTableMonitorThreadFactory = new ThreadFactoryBuilder().setDaemon(false)
+        .setNameFormat("Pending Tables Monitor %d").build();
+    pendingTableMonitorPool = Executors.newScheduledThreadPool(
+        1,
+        pendingTableMonitorThreadFactory);
+
     ThreadFactory syncFileInfoCachePoolThreadFactory = new ThreadFactoryBuilder().setDaemon(false)
         .setNameFormat("Metastore Scheduled SyncFileInfoCache Monitor Worker %d").build();
     syncFileInfoCachePool =
@@ -147,6 +155,8 @@ public class ThreadPool {
         return trashCleanPool;
       case OPTIMIZER_MONITOR:
         return optimizerMonitorPool;
+      case PENDING_TABLES_MONITOR:
+        return pendingTableMonitorPool;
       case TABLE_RUNTIME_DATA_EXPIRE:
         return tableRuntimeDataExpirePool;
       case HIVE_SYNC:

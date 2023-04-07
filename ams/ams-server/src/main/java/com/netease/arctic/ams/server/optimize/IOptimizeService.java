@@ -129,4 +129,9 @@ public interface IOptimizeService {
    * @param tableIdentifier -
    */
   void stopOptimize(TableIdentifier tableIdentifier) throws NoSuchObjectException;
+
+  /**
+   * Check the pending of table
+   */
+  void checkPendingTables();
 }

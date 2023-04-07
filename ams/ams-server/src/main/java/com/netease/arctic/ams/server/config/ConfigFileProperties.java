@@ -69,4 +69,15 @@ public class ConfigFileProperties {
   public static final String OPTIMIZE_GROUP_FLINK_HOME = "flink_home";
   public static final String OPTIMIZE_GROUP_HADOOP_HOME = "hadoop_home";
   public static final String OPTIMIZE_GROUP_HADOOP_CONF_DIR = "hadoop_conf_dir";
+
+  // alert config
+  public static final String ALERT_CONFIG = "alert";
+  public static final String ALERT_TYPE = "type";
+  public static final String ALERT_ENABLE = "enable";
+  public static final String ALERT_URL = "url";
+  public static final String ALERT_TOKEN = "access_token";
+  public static final String ALERT_SECRET_ENABLE = "secret_enable";
+  public static final String ALERT_SECRET_TOKEN = "secret_token";
+
+  public static final String ALERT_PENDING_TABLE_THRESHOLD = "pending_tables_threshold";
 }

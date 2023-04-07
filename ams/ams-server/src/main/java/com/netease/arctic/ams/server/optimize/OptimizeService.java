@@ -38,6 +38,7 @@ import com.netease.arctic.ams.server.model.OptimizeHistory;
 import com.netease.arctic.ams.server.model.OptimizeTaskRuntime;
 import com.netease.arctic.ams.server.model.TableMetadata;
 import com.netease.arctic.ams.server.model.TableOptimizeRuntime;
+import com.netease.arctic.ams.server.service.AlertService;
 import com.netease.arctic.ams.server.service.IJDBCService;
 import com.netease.arctic.ams.server.service.IMetaService;
 import com.netease.arctic.ams.server.service.ServiceContainer;
@@ -423,7 +424,7 @@ public class OptimizeService extends IJDBCService implements IOptimizeService {
   }
 
   private void parallelProcessTables(Iterable<TableIdentifier> tableIdentifiers,
-      Tasks.Task<TableIdentifier, RuntimeException> task) {
+                                     Tasks.Task<TableIdentifier, RuntimeException> task) {
     if (Iterables.isEmpty(tableIdentifiers)) {
       return;
     }
@@ -580,6 +581,22 @@ public class OptimizeService extends IJDBCService implements IOptimizeService {
   private Set<TableIdentifier> getValidTables() {
     return StreamSupport.stream(Iterables.concat(optimizeTables.keySet(), unOptimizeTables).spliterator(), false)
         .collect(Collectors.toSet());
+  }
+
+  @Override
+  public void checkPendingTables() {
+    List<TableOptimizeItem> pendingTables = optimizeTables.values().stream()
+        .filter(TableOptimizeItem::isPending)
+        .collect(Collectors.toList());
+    AlertService alertService = ServiceContainer.getAlertService();
+    if (pendingTables.size() >= alertService.getPendingTablesThreshold()) {
+      alertService.alert(
+          "Pending Tables more than " + alertService.getPendingTablesThreshold() + ", current pending : " +
+              pendingTables.size() + ".");
+    }
+
+    // TODO
+    // latest commit time over than 2 hours
   }
 
   @Override

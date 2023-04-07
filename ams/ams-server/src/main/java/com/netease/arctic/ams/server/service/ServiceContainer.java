@@ -29,6 +29,7 @@ import com.netease.arctic.ams.server.service.impl.ArcticTransactionService;
 import com.netease.arctic.ams.server.service.impl.CatalogMetadataService;
 import com.netease.arctic.ams.server.service.impl.ContainerMetaService;
 import com.netease.arctic.ams.server.service.impl.DDLTracerService;
+import com.netease.arctic.ams.server.service.impl.DingTalkAlertService;
 import com.netease.arctic.ams.server.service.impl.FileInfoCacheService;
 import com.netease.arctic.ams.server.service.impl.JDBCMetaService;
 import com.netease.arctic.ams.server.service.impl.OptimizeExecuteService;
@@ -93,6 +94,8 @@ public class ServiceContainer {
   public static volatile  PlatformFileInfoService platformFileInfoService;
   
   public static volatile TableBlockerService tableBlockerService;
+
+  public static volatile AlertService alertService;
 
   public static IOptimizeService getOptimizeService() {
     if (optimizeService == null) {
@@ -325,6 +328,17 @@ public class ServiceContainer {
       }
     }
     return terminalManager;
+  }
+
+  public static AlertService getAlertService() {
+    if (alertService == null) {
+      synchronized (ServiceContainer.class) {
+        if (alertService == null) {
+          alertService = new DingTalkAlertService();
+        }
+      }
+    }
+    return alertService;
   }
 
   @VisibleForTesting
