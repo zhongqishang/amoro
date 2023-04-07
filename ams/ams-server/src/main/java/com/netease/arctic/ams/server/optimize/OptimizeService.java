@@ -377,6 +377,20 @@ public class OptimizeService extends IJDBCService implements IOptimizeService {
 
   private void initOptimizeTasksIntoOptimizeQueue() {
     ArrayListMultimap<Integer, OptimizeTaskItem> multiMap = ArrayListMultimap.create();
+    List<OptimizeTaskItem> optimizeTaskItemList =
+        optimizeTables.values().stream().flatMap(t -> t.getOptimizeTasks().stream())
+            .filter(t -> OptimizeStatusUtil.in(t.getOptimizeStatus(), OptimizeStatus.Executing))
+            .collect(Collectors.toList());
+
+    for (OptimizeTaskItem task : optimizeTaskItemList) {
+      try {
+        optimizeQueueService.initSubtaskIdCache(task);
+      } catch (NoSuchObjectException | InvalidObjectException e) {
+        LOG.error("failed to load task {} into optimizeQueue subtask Id {}", task.getOptimizeTask(),
+            task.getOptimizeRuntime().getSubtaskId());
+      }
+    }
+
     optimizeTables.values().stream().flatMap(t -> t.getOptimizeTasks().stream())
         .filter(t -> OptimizeStatusUtil.in(t.getOptimizeStatus(), OptimizeStatus.Pending))
         .forEach(t -> multiMap.put(t.getOptimizeTask().getQueueId(), t));

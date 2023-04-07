@@ -47,6 +47,9 @@ public class OptimizeTaskRuntime implements Cloneable {
   private int newFileCnt;
   private List<ByteBuffer> targetFiles;
 
+  private int queueId = -1;
+  private int subtaskId = -1;
+
   public OptimizeTaskRuntime() {
   }
 
@@ -182,11 +185,29 @@ public class OptimizeTaskRuntime implements Cloneable {
     this.targetFiles = targetFiles;
   }
 
+  public int getSubtaskId() {
+    return subtaskId;
+  }
+
+  public int getQueueId() {
+    return queueId;
+  }
+
+  public void setQueueId(int queueId) {
+    this.queueId = queueId;
+  }
+
+  public void setSubtaskId(int subtaskId) {
+    this.subtaskId = subtaskId;
+  }
+
   @Override
   public String toString() {
     return "BaseOptimizeRuntime{" +
         "optimizeTaskId=" + optimizeTaskId +
         ", status=" + status +
+        ", queueId=" + queueId +
+        ", subtaskId=" + subtaskId +
         ", pendingTime=" + pendingTime +
         ", executeTime=" + executeTime +
         ", preparedTime=" + preparedTime +

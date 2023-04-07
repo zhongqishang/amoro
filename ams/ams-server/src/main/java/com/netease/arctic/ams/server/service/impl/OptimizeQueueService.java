@@ -89,6 +89,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -227,6 +228,10 @@ public class OptimizeQueueService extends IJDBCService {
     }
   }
 
+  public void initSubtaskIdCache(OptimizeTaskItem task) throws NoSuchObjectException, InvalidObjectException {
+    getQueue(task.getOptimizeTask().getQueueId()).addSubtaskIdCache(task);
+  }
+
   /**
    * Delete optimize queue
    *
@@ -331,10 +336,10 @@ public class OptimizeQueueService extends IJDBCService {
     }
   }
 
-  public OptimizeTask pollTask(int queueId, JobId jobId, String attemptId, long waitTime)
+  public OptimizeTask pollTask(int queueId, JobId jobId, String attemptId, long waitTime, int subtaskId)
       throws NoSuchObjectException, TException {
     try {
-      OptimizeTask task = getQueue(queueId).poll(jobId, attemptId, waitTime);
+      OptimizeTask task = getQueue(queueId).poll(jobId, attemptId, waitTime, queueId, subtaskId);
       if (task != null) {
         LOG.info("{} pollTask success, {}", jobId, task);
       } else {
@@ -419,6 +424,7 @@ public class OptimizeQueueService extends IJDBCService {
     private final long retryInterval = 1000;
 
     private SchedulePolicy schedulePolicy;
+    private Map<String, OptimizeTaskItem> subtaskIds = new ConcurrentHashMap<>();
 
     private OptimizeQueueWrapper(OptimizeQueueMeta optimizeQueue) {
       this.optimizeQueue = new OptimizeQueueItem(optimizeQueue);
@@ -516,6 +522,12 @@ public class OptimizeQueueService extends IJDBCService {
       }
     }
 
+    public void addSubtaskIdCache(OptimizeTaskItem taskItem) {
+      String queueIdAndSubtaskId = String.format("%s-%s", taskItem.getOptimizeRuntime().getQueueId(),
+          taskItem.getOptimizeRuntime().getSubtaskId());
+      subtaskIds.put(queueIdAndSubtaskId, taskItem);
+    }
+
     public void lock() {
       this.lock.lock();
     }
@@ -529,27 +541,34 @@ public class OptimizeQueueService extends IJDBCService {
           optimizeQueue.getOptimizeQueueMeta().getQueueId();
     }
 
-    public OptimizeTask poll(JobId jobId, final String attemptId, long waitTime) {
+    public OptimizeTask poll(JobId jobId, final String attemptId, long waitTime, int queueId, int subtaskId) {
       long startTime = System.currentTimeMillis();
+
+      String queueIdAndSubtaskId = String.format("%s-%s", queueId, subtaskId);
+      checkLostOptimizeTask(queueIdAndSubtaskId);
+
       OptimizeTaskItem task = pollValidTask();
       if (task == null) {
         tryPlanAsync(jobId, attemptId);
         task = waitForTask(startTime, waitTime);
         if (task == null) {
           return null;
-        } 
-      } 
-      return onExecuteOptimizeTask(task, jobId, attemptId);
+        }
+      }
+      return onExecuteOptimizeTask(task, jobId, attemptId, queueId, subtaskId);
     }
 
-    private OptimizeTask onExecuteOptimizeTask(OptimizeTaskItem task, JobId jobId, String attemptId) {
+    private OptimizeTask onExecuteOptimizeTask(OptimizeTaskItem task, JobId jobId, String attemptId, int queueId,
+                                               int subtaskId) {
       TableTaskHistory tableTaskHistory;
       try {
         // load files from sysdb
         task.setFiles();
         // update max execute time
         task.setMaxExecuteTime();
-        tableTaskHistory = task.onExecuting(jobId, attemptId);
+        tableTaskHistory = task.onExecuting(jobId, attemptId, subtaskId);
+        String queueIdAndSubtaskId = String.format("%s-%s", queueId, subtaskId);
+        subtaskIds.put(queueIdAndSubtaskId, task);
       } catch (Exception e) {
         task.clearFiles();
         LOG.error("{} handle sysdb failed, try put task back into queue", task.getTaskId(), e);
@@ -673,6 +692,21 @@ public class OptimizeQueueService extends IJDBCService {
       } catch (Exception e) {
         LOG.error("Failure when starting the plan thread", e);
         planThreadStarted.set(false);
+      }
+    }
+
+    private void checkLostOptimizeTask(String cacheKey) {
+      if (subtaskIds.containsKey(cacheKey)) {
+        // Query the task corresponding to queueId + subtaskId and mark the task as failed
+        OptimizeTaskItem optimizeTaskItem = subtaskIds.get(cacheKey);
+        if (optimizeTaskItem.getOptimizeRuntime().getStatus() == OptimizeStatus.Executing) {
+          ErrorMessage errorMessage =
+              new ErrorMessage(System.currentTimeMillis(), "task lost");
+          optimizeTaskItem.onFailed(errorMessage,
+              System.currentTimeMillis() - optimizeTaskItem.getOptimizeRuntime().getExecuteTime());
+        } else {
+          subtaskIds.remove(cacheKey);
+        }
       }
     }
 

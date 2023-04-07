@@ -150,6 +150,7 @@ CREATE TABLE `optimize_task`
     `create_time`               datetime(3) DEFAULT NULL COMMENT 'Task create time',
     `properties`                text COMMENT 'Task properties',
     `queue_id`                  int(11) NOT NULL COMMENT 'Task group id',
+    `subtask_id`                int(11) COMMENT 'Runtime task subtask id',
     `insert_files`              int(11) DEFAULT NULL COMMENT 'Insert file cnt',
     `delete_files`              int(11) DEFAULT NULL COMMENT 'Delete file cnt',
     `base_files`                int(11) DEFAULT NULL COMMENT 'Base file cnt',
