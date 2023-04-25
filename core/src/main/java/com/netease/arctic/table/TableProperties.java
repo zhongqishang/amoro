@@ -81,7 +81,7 @@ public class TableProperties {
   public static final int SELF_OPTIMIZING_RETRY_NUMBER_DEFAULT = 5;
 
   public static final String SELF_OPTIMIZING_EXECUTE_TIMEOUT = "self-optimizing.execute.timeout";
-  public static final long SELF_OPTIMIZING_EXECUTE_TIMEOUT_DEFAULT = 1800000; // 30 min
+  public static final long SELF_OPTIMIZING_EXECUTE_TIMEOUT_DEFAULT = 3600000; // 60 min
 
   public static final String SELF_OPTIMIZING_TARGET_SIZE = "self-optimizing.target-size";
   public static final long SELF_OPTIMIZING_TARGET_SIZE_DEFAULT = 268435456; // 256 MB
@@ -96,7 +96,7 @@ public class TableProperties {
   public static final int SELF_OPTIMIZING_FRAGMENT_RATIO_DEFAULT = 8;
 
   public static final String SELF_OPTIMIZING_MINOR_TRIGGER_FILE_CNT = "self-optimizing.minor.trigger.file-count";
-  public static final int SELF_OPTIMIZING_MINOR_TRIGGER_FILE_CNT_DEFAULT = 12;
+  public static final int SELF_OPTIMIZING_MINOR_TRIGGER_FILE_CNT_DEFAULT = 16;
 
   public static final String SELF_OPTIMIZING_MINOR_TRIGGER_INTERVAL = "self-optimizing.minor.trigger.interval";
   public static final long SELF_OPTIMIZING_MINOR_TRIGGER_INTERVAL_DEFAULT = 3600000; // 1 h
@@ -167,16 +167,16 @@ public class TableProperties {
   public static final String ENABLE_TABLE_EXPIRE_LEGACY = "table-expire.enable";
 
   public static final String CHANGE_DATA_TTL = "change.data.ttl.minutes";
-  public static final String CHANGE_DATA_TTL_DEFAULT = "10080"; // 7 Days
+  public static final String CHANGE_DATA_TTL_DEFAULT = "4320"; // 3 Days
 
   public static final String CHANGE_SNAPSHOT_KEEP_MINUTES = "snapshot.change.keep.minutes";
-  public static final String CHANGE_SNAPSHOT_KEEP_MINUTES_DEFAULT = "10080"; // 7 Days
+  public static final String CHANGE_SNAPSHOT_KEEP_MINUTES_DEFAULT = "4320"; // 3 Days
 
   public static final String BASE_SNAPSHOT_KEEP_MINUTES = "snapshot.base.keep.minutes";
   public static final String BASE_SNAPSHOT_KEEP_MINUTES_DEFAULT = "720"; // 12 Hours
 
   public static final String ENABLE_ORPHAN_CLEAN = "clean-orphan-file.enabled";
-  public static final boolean ENABLE_ORPHAN_CLEAN_DEFAULT = false;
+  public static final boolean ENABLE_ORPHAN_CLEAN_DEFAULT = true;
   @Deprecated
   public static final String ENABLE_ORPHAN_CLEAN_LEGACY = "clean-orphan-file.enable";
 

@@ -165,8 +165,8 @@ public abstract class AbstractIcebergOptimizePlan extends AbstractOptimizePlan {
 
     // table ams url
     Map<String, String> properties = new HashMap<>();
-    properties.put(OptimizeTaskProperties.ALL_FILE_COUNT, (optimizeTask.getBaseFiles().size() +
-        optimizeTask.getInsertFiles().size() + optimizeTask.getDeleteFiles().size()) +
+    properties.put(OptimizeTaskProperties.ALL_FILE_COUNT, optimizeTask.getBaseFiles().size() +
+        optimizeTask.getInsertFiles().size() + optimizeTask.getDeleteFiles().size() +
         optimizeTask.getPosDeleteFiles().size() + "");
     optimizeTask.setProperties(properties);
     return optimizeTask;
