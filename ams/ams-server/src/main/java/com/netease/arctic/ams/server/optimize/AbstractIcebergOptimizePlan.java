@@ -179,7 +179,7 @@ public abstract class AbstractIcebergOptimizePlan extends AbstractOptimizePlan {
     return sequenceNumberFetcher;
   }
 
-  private long getTargetSize() {
+  protected long getTargetSize() {
     return PropertyUtil.propertyAsLong(arcticTable.properties(),
         TableProperties.SELF_OPTIMIZING_TARGET_SIZE,
         TableProperties.SELF_OPTIMIZING_TARGET_SIZE_DEFAULT);
