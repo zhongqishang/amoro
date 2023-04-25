@@ -128,18 +128,6 @@ public class IcebergMinorOptimizePlan extends AbstractIcebergOptimizePlan {
           tableId(), partitionToPath, smallFileCount, smallFileCountThreshold);
       return true;
     }
-    int segmentFileCount = getPartitionSegmentFileCount(partitionToPath);
-
-    int segmentFileCountThreshold = CompatiblePropertyUtil.propertyAsInt(
-        arcticTable.properties(),
-        TableProperties.SELF_OPTIMIZING_FRAGMENT_RATIO,
-        TableProperties.SELF_OPTIMIZING_FRAGMENT_RATIO_DEFAULT);
-    // partition has greater than 8 segment (16~128) files to optimize
-    if (segmentFileCount >= segmentFileCountThreshold) {
-      LOG.info("{} ==== need iceberg major optimize plan, partition is {}, medium file count is {}, threshold is {}",
-          tableId(), partitionToPath, segmentFileCount, segmentFileCountThreshold);
-      return true;
-    }
 
     LOG.debug("{} ==== don't need {} optimize plan, skip partition {}", tableId(), getOptimizeType(), partitionToPath);
     return false;
@@ -192,19 +180,6 @@ public class IcebergMinorOptimizePlan extends AbstractIcebergOptimizePlan {
     int smallFileCount = smallDataFileTask.size() + smallDeleteFile.size();
     partitionSmallFileCnt.put(partitionToPath, smallFileCount);
     return smallFileCount;
-  }
-
-  private int getPartitionSegmentFileCount(String partitionToPath) {
-    Integer cached = partitionSegmentFileCnt.get(partitionToPath);
-    if (cached != null) {
-      return cached;
-    }
-    List<FileScanTask> mediumDataFileTask =
-        partitionSegmentDataFilesTask.getOrDefault(partitionToPath, new ArrayList<>());
-
-    int mediumFileCount = mediumDataFileTask.size();
-    partitionSegmentFileCnt.put(partitionToPath, mediumFileCount);
-    return mediumFileCount;
   }
 
   @Override
