@@ -103,7 +103,7 @@ public class TableProperties {
 
   public static final String SELF_OPTIMIZING_MAJOR_TRIGGER_DUPLICATE_RATIO =
       "self-optimizing.major.trigger.duplicate-ratio";
-  public static final double SELF_OPTIMIZING_MAJOR_TRIGGER_DUPLICATE_RATIO_DEFAULT = 0.5;
+  public static final double SELF_OPTIMIZING_MAJOR_TRIGGER_DUPLICATE_RATIO_DEFAULT = 0.25;
 
   public static final String SELF_OPTIMIZING_MAJOR_TRIGGER_FILE_CNT = "self-optimizing.major.trigger.file-count";
   public static final int SELF_OPTIMIZING_MAJOR_TRIGGER_FILE_CNT_DEFAULT = 12;
