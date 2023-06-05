@@ -100,6 +100,7 @@ import java.util.stream.Collectors;
 
 public class TableOptimizeItem extends IJDBCService {
   public static final Long META_EXPIRE_TIME = 60_000L;// 1min
+  private static final long OPTIMIZING_RETRY_INTERVAL = 60000; // 60s
   private static final Logger LOG = LoggerFactory.getLogger(TableOptimizeItem.class);
 
   private final TableIdentifier tableIdentifier;
@@ -701,6 +702,12 @@ public class TableOptimizeItem extends IJDBCService {
     }
   }
 
+  public void failOptimizingAndClear(boolean refreshOptimizeStatus) {
+    tableOptimizeRuntime.setRetry(tableOptimizeRuntime.getRetry() + 1);
+    tableOptimizeRuntime.setLastFailTime(System.currentTimeMillis());
+    optimizeTasksClear(refreshOptimizeStatus);
+  }
+
   public void optimizeTasksClear(boolean refreshOptimizeStatus) {
     try (SqlSession sqlSession = getSqlSession(false)) {
       List<OptimizeTaskItem> tasks = new ArrayList<>(optimizeTasks.values());
@@ -825,6 +832,8 @@ public class TableOptimizeItem extends IJDBCService {
                 break;
             }
           });
+      tableOptimizeRuntime.setRetry(0);
+      tableOptimizeRuntime.setLastFailTime(0);
 
       try {
         // persist optimize task history
@@ -994,9 +1003,8 @@ public class TableOptimizeItem extends IJDBCService {
       // if table has failed task after max retry, clear all tasks
       if (failedTask.isPresent()) {
         LOG.warn("{} has execute task failed over {} times, the reason is {}",
-            tableIdentifier, failedTask.get().getOptimizeRuntime().getRetry(),
-            failedTask.get().getOptimizeRuntime().getFailReason());
-        optimizeTasksClear(false);
+            tableIdentifier, maxRetry, failedTask.get().getOptimizeRuntime().getFailReason());
+        failOptimizingAndClear(false);
       }
     } finally {
       tasksLock.unlock();
@@ -1072,7 +1080,7 @@ public class TableOptimizeItem extends IJDBCService {
           optimizeTasksCommitted(optimizeCommit, commitTime);
         } else {
           LOG.warn("{} commit failed, clear optimize tasks", tableIdentifier);
-          optimizeTasksClear(true);
+          failOptimizingAndClear(true);
         }
       } else {
         LOG.info("{} get no tasks to commit", tableIdentifier);
@@ -1358,6 +1366,27 @@ public class TableOptimizeItem extends IJDBCService {
   public boolean optimizeRunning() {
     return planning.get() || CollectionUtils.isNotEmpty(getOptimizeTasks());
   }
+
+  /**
+   * check if the table can optimize now, it must
+   * - enable optimizing
+   * - reach retry interval if it failed in the last optimizing attempt
+   *
+   * @return -
+   */
+  public boolean allowOptimizing() {
+    if (!CompatiblePropertyUtil.propertyAsBoolean(getArcticTable().properties(), TableProperties.ENABLE_SELF_OPTIMIZING,
+        TableProperties.ENABLE_SELF_OPTIMIZING_DEFAULT)) {
+      return false;
+    }
+    if (tableOptimizeRuntime.getRetry() <= 0) {
+      return true;
+    }
+    // As the number of retry attempts increases, the retry interval should increase exponentially.
+    return System.currentTimeMillis() - tableOptimizeRuntime.getLastFailTime() >
+        OPTIMIZING_RETRY_INTERVAL << tableOptimizeRuntime.getRetry();
+  }
+
 
   public boolean startPlanIfNot() {
     return this.planning.compareAndSet(false, true);
