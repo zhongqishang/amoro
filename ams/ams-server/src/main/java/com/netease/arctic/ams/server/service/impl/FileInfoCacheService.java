@@ -64,6 +64,7 @@ import org.apache.iceberg.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -78,7 +79,7 @@ import java.util.stream.Collectors;
 
 import static com.netease.arctic.utils.ConvertStructUtil.partitionToPath;
 
-public class FileInfoCacheService extends IJDBCService {
+public class FileInfoCacheService extends IJDBCService implements Closeable {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileInfoCacheService.class);
 
@@ -125,7 +126,7 @@ public class FileInfoCacheService extends IJDBCService {
   }
 
   public List<DataFileInfo> getOptimizeDatafilesWithSnapshot(TableIdentifier tableIdentifier, String tableType,
-                                                             Snapshot snapshot) {
+      Snapshot snapshot) {
     Preconditions.checkNotNull(snapshot, "snapshot should not be null");
     try (SqlSession sqlSession = getSqlSession(false)) {
       SnapInfoCacheMapper snapInfoCacheMapper = getMapper(sqlSession, SnapInfoCacheMapper.class);
@@ -666,6 +667,11 @@ public class FileInfoCacheService extends IJDBCService {
       FileInfoCacheMapper fileInfoCacheMapper = getMapper(sqlSession, FileInfoCacheMapper.class);
       return fileInfoCacheMapper.getPartitionFileList(tableIdentifier, partition);
     }
+  }
+
+  @Override
+  public void close() throws IOException {
+
   }
 
   public static class SyncAndExpireFileCacheTask {
