@@ -18,8 +18,8 @@
 
 package com.netease.arctic.hive.io.writer;
 
+import com.netease.arctic.ams.api.TableFormat;
 import com.netease.arctic.hive.table.HiveLocationKind;
-import com.netease.arctic.hive.utils.TableTypeUtil;
 import com.netease.arctic.table.ArcticTable;
 import com.netease.arctic.table.BaseLocationKind;
 import com.netease.arctic.table.ChangeLocationKind;
@@ -34,7 +34,7 @@ public class AdaptHiveOperateToTableRelation implements OperateToTableRelation {
   public LocationKind getLocationKindsFromOperateKind(
       ArcticTable arcticTable, WriteOperationKind writeOperationKind) {
     if (arcticTable.isKeyedTable()) {
-      if (TableTypeUtil.isHive(arcticTable)) {
+      if (arcticTable.format() == TableFormat.MIXED_HIVE) {
         switch (writeOperationKind) {
           case APPEND:
             return ChangeLocationKind.INSTANT;
@@ -57,7 +57,7 @@ public class AdaptHiveOperateToTableRelation implements OperateToTableRelation {
         }
       }
     } else {
-      if (TableTypeUtil.isHive(arcticTable)) {
+      if (arcticTable.format() == TableFormat.MIXED_HIVE) {
         switch (writeOperationKind) {
           case APPEND:
           case MAJOR_OPTIMIZE:

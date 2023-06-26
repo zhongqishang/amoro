@@ -18,10 +18,10 @@
 
 package com.netease.arctic.hive.io.writer;
 
+import com.netease.arctic.ams.api.TableFormat;
 import com.netease.arctic.data.ChangeAction;
 import com.netease.arctic.hive.table.HiveLocationKind;
 import com.netease.arctic.hive.table.SupportHive;
-import com.netease.arctic.hive.utils.TableTypeUtil;
 import com.netease.arctic.io.writer.CommonOutputFileFactory;
 import com.netease.arctic.io.writer.GenericBaseTaskWriter;
 import com.netease.arctic.io.writer.GenericChangeTaskWriter;
@@ -184,7 +184,7 @@ public class AdaptHiveGenericTaskWriterBuilder implements TaskWriterBuilder<Reco
             table.io(), encryptionManager, partitionId, taskId, transactionId, customHiveSubdirectory) :
         new CommonOutputFileFactory(baseLocation, table.spec(), fileFormat, table.io(),
             encryptionManager, partitionId, taskId, transactionId);
-    FileAppenderFactory<Record> appenderFactory = TableTypeUtil.isHive(table) ?
+    FileAppenderFactory<Record> appenderFactory = table.format() == TableFormat.MIXED_HIVE ?
         new AdaptHiveGenericAppenderFactory(schema, table.spec()) :
         new GenericAppenderFactory(schema, table.spec());
     return new GenericBaseTaskWriter(fileFormat, appenderFactory,
@@ -211,7 +211,7 @@ public class AdaptHiveGenericTaskWriterBuilder implements TaskWriterBuilder<Reco
     long mask = PropertyUtil.propertyAsLong(table.properties(), TableProperties.CHANGE_FILE_INDEX_HASH_BUCKET,
         TableProperties.CHANGE_FILE_INDEX_HASH_BUCKET_DEFAULT) - 1;
     Schema changeWriteSchema = SchemaUtil.changeWriteSchema(table.changeTable().schema());
-    FileAppenderFactory<Record> appenderFactory = TableTypeUtil.isHive(table) ?
+    FileAppenderFactory<Record> appenderFactory = table.format() == TableFormat.MIXED_HIVE ?
         new AdaptHiveGenericAppenderFactory(changeWriteSchema, table.spec()) :
         new GenericAppenderFactory(changeWriteSchema, table.spec());
     return new GenericChangeTaskWriter(

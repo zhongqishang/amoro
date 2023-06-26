@@ -19,6 +19,7 @@
 package com.netease.arctic.server.optimizing.plan;
 
 import com.clearspring.analytics.util.Lists;
+import com.netease.arctic.ams.api.TableFormat;
 import com.netease.arctic.hive.table.SupportHive;
 import com.netease.arctic.server.ArcticServiceConstants;
 import com.netease.arctic.server.optimizing.OptimizingType;
@@ -26,7 +27,6 @@ import com.netease.arctic.server.optimizing.scan.TableFileScanHelper;
 import com.netease.arctic.server.table.KeyedTableSnapshot;
 import com.netease.arctic.server.table.TableRuntime;
 import com.netease.arctic.table.ArcticTable;
-import com.netease.arctic.utils.TableTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,7 +179,7 @@ public class OptimizingPlanner extends OptimizingEvaluator {
       this.arcticTable = arcticTable;
       this.tableRuntime = tableRuntime;
       this.planTime = planTime;
-      if (com.netease.arctic.hive.utils.TableTypeUtil.isHive(arcticTable)) {
+      if (arcticTable.format() == TableFormat.MIXED_HIVE) {
         this.hiveLocation = (((SupportHive) arcticTable).hiveLocation());
       } else {
         this.hiveLocation = null;
@@ -187,14 +187,14 @@ public class OptimizingPlanner extends OptimizingEvaluator {
     }
 
     public PartitionEvaluator buildPartitionPlanner(String partitionPath) {
-      if (TableTypeUtil.isIcebergTableFormat(arcticTable)) {
+      if (arcticTable.format() == TableFormat.ICEBERG) {
         return new IcebergPartitionPlan(tableRuntime, arcticTable, partitionPath, planTime);
+      } else if (arcticTable.format() == TableFormat.MIXED_ICEBERG) {
+        return new MixedIcebergPartitionPlan(tableRuntime, arcticTable, partitionPath, planTime);
+      } else if (arcticTable.format() == TableFormat.MIXED_HIVE) {
+        return new MixedHivePartitionPlan(tableRuntime, arcticTable, partitionPath, hiveLocation, planTime);
       } else {
-        if (com.netease.arctic.hive.utils.TableTypeUtil.isHive(arcticTable)) {
-          return new MixedHivePartitionPlan(tableRuntime, arcticTable, partitionPath, hiveLocation, planTime);
-        } else {
-          return new MixedIcebergPartitionPlan(tableRuntime, arcticTable, partitionPath, planTime);
-        }
+        throw new UnsupportedOperationException("Unsupported table format: " + arcticTable.format());
       }
     }
   }

@@ -1,10 +1,10 @@
 package com.netease.arctic.server.table.executor;
 
+import com.netease.arctic.ams.api.TableFormat;
 import com.netease.arctic.hive.HiveTableProperties;
 import com.netease.arctic.hive.table.SupportHive;
 import com.netease.arctic.hive.utils.CompatibleHivePropertyUtil;
 import com.netease.arctic.hive.utils.HivePartitionUtil;
-import com.netease.arctic.hive.utils.TableTypeUtil;
 import com.netease.arctic.server.table.ServerTableIdentifier;
 import com.netease.arctic.server.table.TableManager;
 import com.netease.arctic.server.table.TableRuntime;
@@ -59,7 +59,7 @@ public class HiveCommitSyncExecutor extends BaseTableExecutor {
     ServerTableIdentifier tableIdentifier = tableRuntime.getTableIdentifier();
     try {
       ArcticTable arcticTable = loadTable(tableRuntime);
-      if (!TableTypeUtil.isHive(arcticTable)) {
+      if (arcticTable.format() != TableFormat.MIXED_HIVE) {
         LOG.debug("{} is not a support hive table", tableIdentifier);
         return;
       }

@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import com.netease.arctic.hive.utils.TableTypeUtil;
+import com.netease.arctic.ams.api.TableFormat;
 import com.netease.arctic.table.ArcticTable;
 import io.airlift.json.JsonCodec;
 import io.airlift.log.Logger;
@@ -359,7 +359,7 @@ public class IcebergMetadata
 
     Map<String, String> tableProperties = table.properties();
     String nameMappingJson = tableProperties.get(TableProperties.DEFAULT_NAME_MAPPING);
-    if (TableTypeUtil.isHive((ArcticTable) table)) {
+    if (((ArcticTable) table).format() == TableFormat.MIXED_HIVE) {
       return new AdaptHiveIcebergTableHandle(
           tableName.getSchemaName(),
           name.getTableName(),

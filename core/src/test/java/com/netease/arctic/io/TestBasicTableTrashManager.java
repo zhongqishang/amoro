@@ -263,7 +263,7 @@ public class TestBasicTableTrashManager extends TableTestBase {
   }
 
   private String getTableRootLocation(ArcticTable table) {
-    if (!ArcticTableUtil.isIcebergTableFormat(table) && table.isUnkeyedTable()) {
+    if (table.format() != TableFormat.ICEBERG && table.isUnkeyedTable()) {
       return TableFileUtil.getFileDir(table.location());
     } else {
       return table.location();

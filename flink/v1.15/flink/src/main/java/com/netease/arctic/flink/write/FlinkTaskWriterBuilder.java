@@ -18,11 +18,11 @@
 
 package com.netease.arctic.flink.write;
 
+import com.netease.arctic.ams.api.TableFormat;
 import com.netease.arctic.hive.io.writer.AdaptHiveOperateToTableRelation;
 import com.netease.arctic.hive.io.writer.AdaptHiveOutputFileFactory;
 import com.netease.arctic.hive.table.HiveLocationKind;
 import com.netease.arctic.hive.table.SupportHive;
-import com.netease.arctic.hive.utils.TableTypeUtil;
 import com.netease.arctic.io.writer.CommonOutputFileFactory;
 import com.netease.arctic.io.writer.OutputFileFactory;
 import com.netease.arctic.io.writer.SortedPosDeleteWriter;
@@ -143,7 +143,7 @@ public class FlinkTaskWriterBuilder implements TaskWriterBuilder<RowData> {
             encryptionManager, partitionId, taskId, transactionId) :
         new CommonOutputFileFactory(baseLocation, table.spec(), fileFormat, table.io(),
             encryptionManager, partitionId, taskId, transactionId);
-    FileAppenderFactory<RowData> appenderFactory = TableTypeUtil.isHive(table) ?
+    FileAppenderFactory<RowData> appenderFactory = table.format() == TableFormat.MIXED_HIVE ?
         new AdaptHiveFlinkAppenderFactory(schema, flinkSchema, table.properties(), table.spec()) :
         new FlinkAppenderFactory(
             schema, flinkSchema, table.properties(), table.spec());
@@ -176,7 +176,7 @@ public class FlinkTaskWriterBuilder implements TaskWriterBuilder<RowData> {
     OutputFileFactory outputFileFactory = new CommonOutputFileFactory(keyedTable.changeLocation(),
         keyedTable.spec(), fileFormat, keyedTable.io(), keyedTable.baseTable().encryption(), partitionId,
         taskId, transactionId);
-    FileAppenderFactory<RowData> appenderFactory = TableTypeUtil.isHive(table) ?
+    FileAppenderFactory<RowData> appenderFactory = table.format() == TableFormat.MIXED_HIVE ?
         new AdaptHiveFlinkAppenderFactory(changeSchemaWithMeta, flinkSchemaWithMeta,
             keyedTable.properties(), keyedTable.spec()) :
         new FlinkAppenderFactory(

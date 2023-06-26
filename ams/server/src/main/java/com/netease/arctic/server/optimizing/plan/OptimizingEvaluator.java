@@ -18,6 +18,7 @@
 
 package com.netease.arctic.server.optimizing.plan;
 
+import com.netease.arctic.ams.api.TableFormat;
 import com.netease.arctic.hive.table.SupportHive;
 import com.netease.arctic.server.optimizing.scan.IcebergTableFileScanHelper;
 import com.netease.arctic.server.optimizing.scan.KeyedTableFileScanHelper;
@@ -28,7 +29,6 @@ import com.netease.arctic.server.table.TableRuntime;
 import com.netease.arctic.server.table.TableSnapshot;
 import com.netease.arctic.server.utils.IcebergTableUtils;
 import com.netease.arctic.table.ArcticTable;
-import com.netease.arctic.utils.TableTypeUtil;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.StructLike;
 import org.apache.iceberg.relocated.com.google.common.base.MoreObjects;
@@ -70,7 +70,7 @@ public class OptimizingEvaluator {
   protected void initEvaluator() {
     long startTime = System.currentTimeMillis();
     TableFileScanHelper tableFileScanHelper;
-    if (TableTypeUtil.isIcebergTableFormat(arcticTable)) {
+    if (arcticTable.format() == TableFormat.ICEBERG) {
       tableFileScanHelper = new IcebergTableFileScanHelper(arcticTable.asUnkeyedTable(), currentSnapshot.snapshotId());
     } else {
       if (arcticTable.isUnkeyedTable()) {
@@ -119,17 +119,17 @@ public class OptimizingEvaluator {
   }
 
   protected PartitionEvaluator buildEvaluator(String partitionPath) {
-    if (TableTypeUtil.isIcebergTableFormat(arcticTable)) {
+    if (arcticTable.format() == TableFormat.ICEBERG) {
       return new CommonPartitionEvaluator(tableRuntime, partitionPath, System.currentTimeMillis());
+    } else if (arcticTable.format() == TableFormat.MIXED_ICEBERG) {
+      return new MixedIcebergPartitionPlan.MixedIcebergPartitionEvaluator(tableRuntime, partitionPath,
+          System.currentTimeMillis(), arcticTable.isKeyedTable());
+    } else if (arcticTable.format() == TableFormat.MIXED_HIVE) {
+      String hiveLocation = (((SupportHive) arcticTable).hiveLocation());
+      return new MixedHivePartitionPlan.MixedHivePartitionEvaluator(tableRuntime, partitionPath, hiveLocation,
+          System.currentTimeMillis(), arcticTable.isKeyedTable());
     } else {
-      if (com.netease.arctic.hive.utils.TableTypeUtil.isHive(arcticTable)) {
-        String hiveLocation = (((SupportHive) arcticTable).hiveLocation());
-        return new MixedHivePartitionPlan.MixedHivePartitionEvaluator(tableRuntime, partitionPath, hiveLocation,
-            System.currentTimeMillis(), arcticTable.isKeyedTable());
-      } else {
-        return new MixedIcebergPartitionPlan.MixedIcebergPartitionEvaluator(tableRuntime, partitionPath,
-            System.currentTimeMillis(), arcticTable.isKeyedTable());
-      }
+      throw new UnsupportedOperationException("Unsupported table format: " + arcticTable.format());
     }
   }
 

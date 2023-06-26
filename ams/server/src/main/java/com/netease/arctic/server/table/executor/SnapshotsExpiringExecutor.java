@@ -18,7 +18,7 @@
 
 package com.netease.arctic.server.table.executor;
 
-import com.netease.arctic.hive.utils.TableTypeUtil;
+import com.netease.arctic.ams.api.TableFormat;
 import com.netease.arctic.server.optimizing.OptimizingStatus;
 import com.netease.arctic.server.table.TableManager;
 import com.netease.arctic.server.table.TableRuntime;
@@ -120,7 +120,7 @@ public class SnapshotsExpiringExecutor extends BaseTableExecutor {
         TableProperties.CHANGE_SNAPSHOT_KEEP_MINUTES_DEFAULT) * 60 * 1000;
 
     Set<String> hiveLocations = new HashSet<>();
-    if (TableTypeUtil.isHive(arcticTable)) {
+    if (arcticTable.format() == TableFormat.MIXED_HIVE) {
       hiveLocations = HiveLocationUtil.getHiveLocation(arcticTable);
     }
 
