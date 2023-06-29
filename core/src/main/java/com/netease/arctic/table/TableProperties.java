@@ -18,6 +18,7 @@
 
 package com.netease.arctic.table;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -112,8 +113,7 @@ public class TableProperties {
   public static final long SELF_OPTIMIZING_MAJOR_TRIGGER_INTERVAL_DEFAULT = 86400000; // 1 day
 
   public static final String SELF_OPTIMIZING_FULL_TRIGGER_INTERVAL = "self-optimizing.full.trigger.interval";
-  public static final long SELF_OPTIMIZING_FULL_TRIGGER_INTERVAL_DEFAULT = -1; // not trigger
-
+  public static final long SELF_OPTIMIZING_FULL_TRIGGER_INTERVAL_DEFAULT = Duration.ofHours(1).toMillis();
 
   /**
    * deprecated table optimize related properties

@@ -75,6 +75,10 @@ public class IcebergFullOptimizePlan extends AbstractIcebergOptimizePlan {
 
   @Override
   protected boolean partitionNeedPlan(String partitionToPath) {
+    if (!checkOptimizeInterval(partitionToPath)) {
+      return false;
+    }
+
     long deleteFilesTotalSize = getPartitionDeleteFileTotalSize(partitionToPath);
     if (deleteFilesTotalSize == 0) {
       return false;
