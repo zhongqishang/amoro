@@ -59,7 +59,7 @@ public class OptimizerConfig implements Serializable {
   private boolean extendDiskStorage = false;
 
   @Option(name = "-dsp", aliases = "--" + PropertyNames.OPTIMIZER_DISK_STORAGE_PATH, usage = "Disk storage path")
-  private String diskStoragePath;
+  private String diskStoragePath = "/tmp";
 
   @Option(name = "-msz", aliases = "--" + PropertyNames.OPTIMIZER_MEMORY_STORAGE_SIZE,
       usage = "Memory storage size limit when extending disk storage(MB), default 512MB")
