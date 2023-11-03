@@ -1,8 +1,8 @@
 package com.netease.arctic.server.optimizing.plan;
 
 import com.netease.arctic.optimizing.RewriteFilesInput;
-
 import java.util.Map;
+import org.apache.iceberg.relocated.com.google.common.base.MoreObjects;
 
 public class TaskDescriptor {
   private final long tableId;
@@ -32,5 +32,18 @@ public class TaskDescriptor {
 
   public long getTableId() {
     return tableId;
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+        .add("tableId", tableId)
+        .add("partition", partition)
+        .add("rewrittenDataFiles", input.rewrittenDataFiles().length)
+        .add("rewrittenDeleteFiles", input.rewrittenDeleteFiles().length)
+        .add("rePosDeletedDataFiles", input.rePosDeletedDataFiles().length)
+        .add("readOnlyDeleteFiles", input.readOnlyDeleteFiles().length)
+        .add("properties", properties)
+        .toString();
   }
 }

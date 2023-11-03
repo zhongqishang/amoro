@@ -36,6 +36,7 @@
         <module>optimizer</module>
         <module>server</module>
         <module>dashboard</module>
+        <module>local</module>
     </modules>
 
 </project>

@@ -89,7 +89,7 @@ public class ArcticServiceContainer {
   private DefaultTableService tableService;
   private DefaultOptimizingService optimizingService;
   private TerminalManager terminalManager;
-  private Configurations serviceConfig;
+  public Configurations serviceConfig;
   private TServer tableManagementServer;
   private TServer optimizingServiceServer;
   private Javalin httpServer;

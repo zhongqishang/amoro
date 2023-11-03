@@ -68,7 +68,7 @@ public abstract class PersistentBase {
     }
   }
 
-  protected final <T, R> R getAs(Class<T> mapperClz, Function<T, R> func) {
+  public final <T, R> R getAs(Class<T> mapperClz, Function<T, R> func) {
     try (NestedSqlSession session = beginSession()) {
       try {
         T mapper = getMapper(session, mapperClz);

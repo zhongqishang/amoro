@@ -277,6 +277,11 @@
             <artifactId>hadoop-aws</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql-jdbc.version}</version>
+        </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>com.netease.amoro</groupId>
