@@ -66,6 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -389,7 +390,7 @@ public class ArcticServiceContainer {
     @SuppressWarnings("unchecked")
     private void initServiceConfig(Map<String, Object> envConfig) throws IOException {
       LOG.info("initializing service configuration...");
-      String configPath = Environments.getConfigPath() + "/" + SERVER_CONFIG_FILENAME;
+      String configPath = Environments.getConfigPath() + File.separator + SERVER_CONFIG_FILENAME;
       LOG.info("load config from path: {}", configPath);
       yamlConfig =
           new JSONObject(new Yaml().loadAs(Files.newInputStream(Paths.get(configPath)), Map.class));

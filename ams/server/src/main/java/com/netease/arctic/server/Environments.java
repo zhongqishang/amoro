@@ -18,6 +18,8 @@
 
 package com.netease.arctic.server;
 
+import java.io.File;
+
 /** Util method to help get system directories. */
 public class Environments {
 
@@ -73,7 +75,7 @@ public class Environments {
     if (amoroConfDir != null) {
       return amoroConfDir;
     }
-    return getHomePath() + "/" + DEFAULT_CONFIG_DIR_NAME;
+    return getHomePath() + File.separator + DEFAULT_CONFIG_DIR_NAME;
   }
 
   /**
