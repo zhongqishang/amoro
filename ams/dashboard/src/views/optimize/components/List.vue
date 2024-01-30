@@ -33,7 +33,7 @@ limitations under the License.
         </template>
         <template v-if="column.dataIndex === 'durationDisplay'">
           <span :title="record.durationDesc">
-            {{ record.durationDisplay }}
+            {{ record.durationDesc }}
           </span>
         </template>
         <template v-if="column.dataIndex === 'optimizeStatus'">
@@ -57,7 +57,7 @@ import { IIOptimizeGroupItem, ILableAndValue, IOptimizeResourceTableItem, IOptim
 import { getOptimizerTableList, getResourceGroupsListAPI, releaseResource } from '@/services/optimize.service'
 import { useI18n } from 'vue-i18n'
 import { usePagination } from '@/hooks/usePagination'
-import { bytesToSize, formatMS2Time, formatMS2DisplayTime } from '@/utils'
+import { bytesToSize, formatMS2Time } from '@/utils'
 import { Modal } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 
@@ -121,7 +121,6 @@ async function getTableList() {
     (list || []).forEach((p: IOptimizeTableItem) => {
       p.quotaOccupationDesc = p.quotaOccupation - 0.0005 > 0 ? `${(p.quotaOccupation * 100).toFixed(1)}%` : '0'
       p.durationDesc = formatMS2Time(p.duration || 0)
-      p.durationDisplay = formatMS2DisplayTime(p.duration || 0)
       p.fileSizeDesc = bytesToSize(p.fileSize)
       dataSource.push(p)
     })

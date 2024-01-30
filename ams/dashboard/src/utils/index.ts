@@ -88,35 +88,6 @@ export const formatMS2Time = (time: number, fromHour?: boolean): string => {
   const calcDay = Math.floor(time / Day)
   return calcDay + ' d ' + formatMS2Time(time - calcDay * Day, true)
 }
-/**
- * Convert milliseconds to d h min s format
- * Less than or equal to one hour Display the exact second value，like 723s；
- * 3600s<x≤1440min display minute-level values，like 234min；
- * 1440min<x≤7200h display hourly values, like 45h；
- * more than 30d display >30d
- */
-export const formatMS2DisplayTime = (time: number): string => {
-  if (time === null || time === undefined || isNaN(time)) {
-    return ''
-  }
-  const Second = 1000
-  const Minute = Second * 60
-  const Hour = Minute * 60
-  const Day = Hour * 24
-  if (time === 0) {
-    return '0 ms'
-  }
-  if (time <= Hour) {
-    return `${Math.floor(time / Second)} s`
-  }
-  if (time > Hour && time <= Day) {
-    return `${Math.floor(time / Minute)} min`
-  }
-  if (time > Day && time <= (30 * Day)) {
-    return `${Math.floor(time / Hour)} h`
-  }
-  return '>30 d'
-}
 
 export const timeConversion = (millisec: number) => {
   const seconds = (millisec / 1000).toFixed(1)

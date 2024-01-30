@@ -98,7 +98,6 @@ export default {
   container: 'Container',
   status: 'Status',
   optimizingStatus: 'Optimizing Status',
-  optimzerGroup: 'Optimizer Group',
   allGroups: 'All Groups',
   retry: 'Retry',
   costTime: 'Cost Time',
