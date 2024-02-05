@@ -55,7 +55,7 @@ Here is the architecture diagram of Amoro:
     * Terminal: SQL command-line tools, provide various implementations like local Spark and Kyuubi.
     * LogStore: Provide millisecond to second level SLAs for real-time data processing based on message queues like Kafka and Pulsar.
 
-## Supported table formats
+## Supported Table Formats
 
 Amoro can manage tables of different table formats, similar to how MySQL/ClickHouse can choose different storage engines.
 Amoro meets diverse user needs by using different table formats. Currently, Amoro supports four table formats:
@@ -65,23 +65,23 @@ Amoro meets diverse user needs by using different table formats. Currently, Amor
 * Mixed-Hive format: Many users do not want to affect the business originally built on Hive while using data lakes. Therefore, Amoro provides the Mixed-Hive format, which can upgrade Hive tables to Mixed-Hive format only through metadata migration, and the original Hive tables can still be used normally. This ensures business stability and benefits from the advantages of data lake computing.
 * Paimon format: Amoro supports displaying metadata information in the Paimon format, including Schema, Options, Files, Snapshots, DDLs, and Compaction information.
 
-## Supported engines
+## Supported Engines
 
-### Iceberg format
+### Iceberg Format
 
 Iceberg format tables use the engine integration method provided by the Iceberg community.
 For details, please refer to: [Iceberg Docs](https://iceberg.apache.org/docs/latest/).
 
-### Mixed format
+### Mixed Format
 
 Amoro support multiple processing engines for Mixed format as below:
 
-| Processing Engine | Version                | Batch Read  | Batch Write | Batch Overwrite | Streaming Read | Streaming Write | Create Table | Alter Table |
-|-------------------|------------------------|-------------|-------------|-----------------|----------------|-----------------|--------------|-------------|
-| Flink             | 1.15.x, 1.16.x, 1.17.x |  &#x2714;   |   &#x2714;   |       &#x2716;   |      &#x2714;   |       &#x2714;   |    &#x2714;   |   &#x2716;   |
-| Spark             | 3.1, 3.2, 3.3          |  &#x2714;   |   &#x2714;   |       &#x2714;   |      &#x2716;   |       &#x2716;   |    &#x2714;   |   &#x2714;   |
-| Hive              | 2.x, 3.x               |  &#x2714;  |   &#x2716;  |       &#x2714;  |      &#x2716;  |       &#x2716;  |    &#x2716;  |   &#x2714;  |
-| Trino             | 406                    |  &#x2714;  |   &#x2716;  |       &#x2714;  |      &#x2716;  |       &#x2716;  |    &#x2716;  |   &#x2714;  |
+| Processing Engine | Version                | Batch Read | Batch Write | Batch Overwrite | Streaming Read | Streaming Write | Create Table | Alter Table |
+|-------------------|------------------------|------------|-------------|-----------------|----------------|-----------------|--------------|-------------|
+| Flink             | 1.15.x, 1.16.x, 1.17.x | &#x2714;   |   &#x2714;  |       &#x2716;  |      &#x2714;  |       &#x2714;  |    &#x2714;  |   &#x2716;  |
+| Spark             | 3.2, 3.3               | &#x2714;   |   &#x2714;  |       &#x2714;  |      &#x2716;  |       &#x2716;  |    &#x2714;  |   &#x2714;  |
+| Hive              | 2.x, 3.x               | &#x2714;   |   &#x2716;  |       &#x2714;  |      &#x2716;  |       &#x2716;  |    &#x2716;  |   &#x2714;  |
+| Trino             | 406                    | &#x2714;   |   &#x2716;  |       &#x2714;  |      &#x2716;  |       &#x2716;  |    &#x2716;  |   &#x2714;  |
 
 ## Features
 
@@ -96,18 +96,17 @@ Amoro support multiple processing engines for Mixed format as below:
 
 Amoro contains modules as below:
 
-- `amoro-core` contains core abstractions and common implementation for other modules
-- `amoro-ams` is amoro management service module
-    - `ams-api` contains ams thrift api and common interfaces
-    - `ams-dashboard` is the dashboard frontend for ams
-    - `ams-server` is the backend server for ams
-    - `ams-optimizer` provides default optimizer implementation
-- `amoro-mixed` provides Mixed format implementation
-    - `amoro-hive` integrates with Apache Hive and implements Mixed Hive format
-    - `amoro-flink` provides Flink connectors for Mixed format tables (use amoro-flink-runtime for a shaded version)
-    - `amoro-spark` provides Spark connectors for Mixed format tables (use amoro-spark-runtime for a shaded version)
-    - `amoro-trino` provides Trino connectors for Mixed format tables
-
+- `core` contains core abstractions and common implementation for other modules
+- `ams` is amoro management service module
+    - `api` contains ams thrift api and common interfaces
+    - `dashboard` is the dashboard frontend for ams
+    - `server` is the backend server for ams
+    - `optimizer` provides default optimizer implementation
+- `mixed` provides Mixed format implementation
+    - `hive` integrates with Apache Hive and implements Mixed Hive format
+    - `flink` provides Flink connectors for Mixed format tables (use amoro-flink-runtime for a shaded version)
+    - `spark` provides Spark connectors for Mixed format tables (use amoro-spark-runtime for a shaded version)
+    - `trino` provides Trino connectors for Mixed format tables
 
 ## Building
 
