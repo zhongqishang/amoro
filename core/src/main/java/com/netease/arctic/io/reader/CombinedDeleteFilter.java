@@ -26,6 +26,7 @@ import com.netease.arctic.utils.map.StructLikeBaseMap;
 import com.netease.arctic.utils.map.StructLikeCollections;
 import org.apache.iceberg.Accessor;
 import org.apache.iceberg.ContentFile;
+import org.apache.iceberg.DataFile;
 import org.apache.iceberg.DeleteFile;
 import org.apache.iceberg.FileContent;
 import org.apache.iceberg.MetadataColumns;
@@ -37,6 +38,8 @@ import org.apache.iceberg.data.Record;
 import org.apache.iceberg.data.avro.DataReader;
 import org.apache.iceberg.data.orc.GenericOrcReader;
 import org.apache.iceberg.data.parquet.GenericParquetReaders;
+import org.apache.iceberg.expressions.Expression;
+import org.apache.iceberg.expressions.Expressions;
 import org.apache.iceberg.io.CloseableIterable;
 import org.apache.iceberg.io.CloseableIterator;
 import org.apache.iceberg.io.DeleteSchemaUtil;
@@ -107,14 +110,16 @@ public abstract class CombinedDeleteFilter<T extends StructLike> {
 
   private final long dataRecordCnt;
   private final boolean filterEqDelete;
+  private final DataFile[] dataFiles;
 
   protected CombinedDeleteFilter(
       RewriteFilesInput rewriteFilesInput,
       Schema tableSchema,
       StructLikeCollections structLikeCollections) {
     this.input = rewriteFilesInput;
+    this.dataFiles = rewriteFilesInput.dataFiles();
     this.dataRecordCnt =
-        Arrays.stream(rewriteFilesInput.dataFiles()).mapToLong(ContentFile::recordCount).sum();
+        Arrays.stream(dataFiles).mapToLong(ContentFile::recordCount).sum();
     ImmutableList.Builder<DeleteFile> posDeleteBuilder = ImmutableList.builder();
     ImmutableList.Builder<DeleteFile> eqDeleteBuilder = ImmutableList.builder();
     if (rewriteFilesInput.deleteFiles() != null) {
@@ -141,7 +146,7 @@ public abstract class CombinedDeleteFilter<T extends StructLike> {
       }
     }
     this.positionPathSets =
-        Arrays.stream(rewriteFilesInput.dataFiles())
+        Arrays.stream(dataFiles)
             .map(s -> s.path().toString())
             .collect(Collectors.toSet());
     this.posDeletes = posDeleteBuilder.build();
@@ -397,12 +402,27 @@ public abstract class CombinedDeleteFilter<T extends StructLike> {
             .build();
 
       case PARQUET:
-        return Parquet.read(input)
+        Parquet.ReadBuilder builder = Parquet.read(input)
             .project(deleteSchema)
             .reuseContainers()
             .createReaderFunc(
-                fileSchema -> GenericParquetReaders.buildReader(deleteSchema, fileSchema))
-            .build();
+                fileSchema -> GenericParquetReaders.buildReader(deleteSchema, fileSchema));
+
+        if (contentFile.content() == FileContent.POSITION_DELETES) {
+          Expression expression = null;
+          Expression preExpression = null;
+          for (DataFile dataFile : dataFiles) {
+            expression =
+                Expressions.equal(
+                    MetadataColumns.DELETE_FILE_PATH.name(), dataFile.path().toString());
+            if (preExpression != null) {
+              expression = Expressions.or(expression, preExpression);
+            }
+            preExpression = expression;
+          }
+          builder.filter(expression);
+        }
+        return builder.build();
 
       case ORC:
         // Reusing containers is automatic for ORC. No need to set 'reuseContainers' here.
